@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message TMsg {
+	required string name = 1;
+	required int32  rank = 2;
+}

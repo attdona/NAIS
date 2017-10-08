@@ -1,0 +1,37 @@
+APPLICATION = unity
+
+BOARD ?= cc3200-launchxl
+BURBA ?= $(CURDIR)/../..
+RIOTBASE ?= $(BURBA)/RIOT
+UNITY_ROOT ?= $(BURBA)/../../cmock/vendor/unity
+
+QUIET ?= 1
+
+INCLUDES += -I$(CURDIR)/../../sys/mqtt -I$(BURBA)/sys/protobuf-c
+
+
+USEMODULE += libunity
+USEMODULE += libcmock
+
+CFLAGS += -DMODULE_XTIMER
+USEMODULE += xtimer_32
+
+#USEMODULE += morse
+USEMODULE += protobuf-c
+
+CFLAGS += -DDEVELHELP
+#CFLAGS_OPT = -O0
+CFLAGS_OPT = -O3
+
+all: auto_main.c
+
+full-clean: clean
+	@rm -rf main.c
+
+auto_main.c: test_cases.c
+	ruby $(UNITY_ROOT)/auto/generate_test_runner.rb $? $@
+
+
+include $(BURBA)/Makefile.include
+
+

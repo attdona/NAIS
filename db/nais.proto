@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+message FwSnippet {
+    required uint32 major = 1;
+    required uint32 minor = 2;
+    required uint32 patch = 3;
+    required uint32 board = 4;
+    optional string name = 5; // the name of the file containing the chunk
+    required uint64 cid = 6;  // 00..001 is the first data chunk (ie the first 4KB block, 00..10 is the second 4KB block ...)
+    required uint32 cksum = 7;
+    required bytes payload = 8;
+}

@@ -1,0 +1,44 @@
+syntax = "proto2";
+
+message Profile {
+	required string uid = 1;
+	required string pwd  = 2;
+}
+
+message Config {
+	required string network = 1;
+	required string board   = 2;
+	required string host = 3;
+	optional int32  port = 4 [default = 1883];
+	optional int32  alive_period = 5;
+	optional bool   secure = 6;
+}
+
+///////// BOCIA Command.id values //////////////////////////
+//
+// 1 == REBOOT triggers an immediate reboot of the board
+//
+////////////////////////////////////////////////////////////
+message Command {
+  required int32 id = 1;
+  optional int32 seq = 2; // seq links a command with a Ack
+  repeated string svals = 3;
+  repeated int32 ivals = 4;
+}
+
+message Ack {
+  required int32 id = 1;
+  optional int32 seq = 2;
+  optional int32 status = 3;
+}
+
+message Event {
+  required int32  id = 1;
+  repeated string svals = 2;
+  repeated float  fvals = 3;
+  repeated sint32 ivals = 4;
+}
+
+message Secret {
+	required string key = 1;
+}

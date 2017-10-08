@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="icon" href="../../bootstrap/favicon.ico">
+
+  <title>On Boarding</title> 
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+  <!-- Custom styles for this template -->
+  <link href="cstyle.css" rel="stylesheet">
+
+</head>
+
+<body>
+  <script>
+
+    var ws;
+
+    function connect() {
+      ws = new WebSocket("ws://127.0.0.1:3000/");
+
+      ws.onerror = function(event) {
+        $('#ws_console').show()
+      }
+
+      ws.onclose = function(event) {
+        console.log("conn closed, retrying in 2 seconds ...")
+        setTimeout(function() {
+          console.log("!! connection in progress ..." + ws)
+          connect()
+        }, 2000)
+      }
+
+      ws.onopen = function(event) {
+        $('#ws_console').hide()
+      }
+
+      ws.onmessage = function (event) {
+        console.log("recv:" + event.data)
+
+        ack = JSON.parse(event.data)
+        
+        if (ack.sts == 0) {
+            $('#response').show()
+            var message = document.getElementById('response');
+            message.innerHTML = "Profile added successfully"
+        } else {
+            $('#err_response').show()
+            var message = document.getElementById('err_response');
+           message.innerHTML = "Operation failed, error code:" + ack.sts
+        }
+        
+        setTimeout(function() {
+          console.log("fading out the response ..." + ws)
+          $('#response').fadeOut(1000)
+          $('#err_response').fadeOut(1000)
+        }, 2000)
+      };
+
+
+    }
+
+    connect()
+
+    messages = document.createElement('ul');
+    messages.className='list-group'
+
+    $( document ).ready(function() {
+      console.log( "ready!" );
+      $('#ws_console').hide()
+      $('#response').hide()
+      $('#err_response').hide()
+
+      $("#send_btn").click(function(event){
+                ssid = $('#ssid').val()
+                pwd = $('#password').val()
+                if (ssid && pwd) {
+                  ws.send(JSON.stringify({'uid': ssid, 'pwd' : pwd}))
+                }
+                event.preventDefault();
+                
+              });
+    });
+
+    document.body.appendChild(messages);
+  </script>
+
+  <div class="container">
+
+    <form class="form-signin">
+      <h2 class="form-signin-heading">wifi board setup</h2>
+      <label for="ssid" class="sr-only">Wlan SSID</label>
+      <input type="text" id="ssid" class="form-control" placeholder="Wlan AP identifier" required autofocus>
+      <label for="password" class="sr-only">Password</label>
+      <input type="text" id="password" class="form-control" placeholder="Password" required>
+      <button id="send_btn" class="btn btn-lg btn-primary btn-block" type="submit">Configure</button>
+    </form>
+
+    <div id="response" class="alert alert-success" role="alert">
+    </div>
+
+    <div id="err_response" class="alert alert-danger" role="alert">
+    </div>
+
+    <div id="ws_console" class="alert alert-danger" role="alert">
+      <strong>Whoops!</strong> connection to nais router failed, retrying ...
+    </div>
+
+  </div> <!-- /container -->
+
+
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <!-- <script src="../../bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script> -->
+</body>
+</html>

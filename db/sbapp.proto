@@ -1,0 +1,6 @@
+syntax = "proto2";
+
+message Profile {
+	required string ssid = 1;
+	required string pwd  = 2;
+}

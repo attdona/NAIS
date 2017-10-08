@@ -1,0 +1,22 @@
+/**
+ * @defgroup utils Utilities
+ * @brief Utilities and helper functionality
+ *
+ *        Additional scripts and configuration options to ease burba
+ *        development.
+ * @{
+ */
+
+/**
+ * @def DEVELHELP
+ * @brief   This global macro activates some behavior that helps you while
+ *          developing but is otherwise optimized out.
+ */
+#if DOXYGEN
+#   define DEVELHELP
+#endif
+
+
+/**
+ * @}
+ */

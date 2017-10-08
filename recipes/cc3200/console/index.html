@@ -1,0 +1,169 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../bootstrap/favicon.ico">
+
+    <title>Led</title> 
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+    <!-- Custom styles for this template -->
+    <link href="cstyle.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+    <script>
+
+      var ws;
+
+      function connect() {
+        ws = new WebSocket("ws://127.0.0.1:3000/");
+
+        ws.onerror = function(event) {
+          $('#ws_console').show()
+          $('#red_btn').text('Red ?')
+          $('#yellow_btn').text('Yellow ?')
+        }
+
+        ws.onclose = function(event) {
+          console.log("conn closed, retrying in 2 seconds ...")
+          setTimeout(function() {
+            console.log("!! connection in progress ..." + ws)
+            connect()
+          }, 2000)
+        }
+
+        ws.onopen = function(event) {
+          $('#ws_console').hide()
+
+          // get led states
+          ws.send(JSON.stringify({'leds': 'get'}))
+        }
+
+        ws.onmessage = function (event) {
+          //$('#response').show()
+          console.log("recv:" + event.data)
+
+          led = JSON.parse(event.data) 
+          switch (led.red) {
+            case 'on':
+              $('#red_btn').text('Red OFF')
+              break
+            case 'off':
+              $('#red_btn').text('Red ON')
+              break
+          }
+          switch (led.yellow) {
+            case 'on':
+              $('#yellow_btn').text('Yellow OFF')
+              break
+            case 'off':
+              $('#yellow_btn').text('Yellow ON')
+              break
+          }
+
+
+          var message = document.getElementById('response');
+          content = document.createTextNode(event.data);
+          message.innerHTML = event.data
+          setTimeout(function() {
+            $('#response').fadeOut(1000)
+          }, 2000)
+        };
+
+
+      }
+
+      connect()
+
+      messages = document.createElement('ul');
+      messages.className='list-group'
+
+      $( document ).ready(function() {
+        console.log( "ready!" );
+        $('#ws_console').hide()
+        $('#response').hide()
+
+        $("#red_btn").click(function(event){
+
+                  cmd = $('#red_btn').text()
+                  switch (cmd) {
+                    case 'Red ON':
+                      ws.send(JSON.stringify({'leds':'set', 'red': 'on'}))
+                      break
+                    case 'Red OFF':
+                      ws.send(JSON.stringify({'leds':'set', 'red': 'off'}))
+                      break
+                  }
+                  event.preventDefault();
+                });
+
+        $("#yellow_btn").click(function(event){
+
+                  cmd = $('#yellow_btn').text()
+                  switch (cmd) {
+                    case 'Yellow ON':
+                      ws.send(JSON.stringify({'leds':'set', 'yellow': 'on'}))
+                      break
+                    case 'Yellow OFF':
+                      ws.send(JSON.stringify({'leds':'set', 'yellow': 'off'}))
+                      break
+                  }
+                  event.preventDefault();
+                });
+
+
+
+      });
+
+      document.body.appendChild(messages);
+    </script>
+
+
+    <div class="container">
+
+    <div class="card" style="width: 20rem;">
+      <img class="card-img-top center"  src="../../../docs/images/nais-logo.png" alt="Card image cap">
+      <div class="card-block">
+          <h4 class="card-title">Leds reloaded</h4>
+        <p class="card-text">simple UI for driving the leds on the
+           <a href="http://www.ti.com/product/CC3200"> cc3200 launchpad</a> 
+            with JSON encoded packets using websocket protocol
+          </p>
+
+      <div class="btn-toolbar" role="toolbar">
+        <button id="yellow_btn" class="btn btn-warning m-2" type="submit">Yellow ?</button>
+        <button id="red_btn" class="btn btn-danger m-2" type="submit">Red ?</button>
+      </div>
+
+
+      </div>
+    </div>
+
+
+    </div> <!-- /container -->
+
+    <div class="container">
+      <div id="response" class="alert alert-success" role="alert"></div>
+    </div>
+    <div class="container" style="margin-top:20px">
+      <div id="ws_console" class="hidden alert alert-danger" role="alert">
+        <strong>Whoops!</strong> connection to nais router failed, retrying ...
+      </div>
+    </div>
+
+
+    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+    <!-- <script src="../../bootstrap/assets/js/ie10-viewport-bug-workaround.js"></script> -->
+  </body>
+  </html>

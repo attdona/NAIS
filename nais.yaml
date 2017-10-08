@@ -1,0 +1,41 @@
+# serial configuration (ser2net)
+ser2net: '2000:raw:600:/dev/ttyUSB0:115200 8DATABITS NONE 1STOPBIT'
+
+# serial access point process
+no_serial_proxy: 
+  - ser2net 
+  - -d 
+  - -C 
+  - 2000:raw:600:/dev/ttyUSB0:115200 8DATABITS NONE 1STOPBIT
+
+tcp_modem:
+  - python
+  - recipes/ws_server.py
+
+# ruoter rules between mqtt, uart and websocket
+#
+# plain keyword specifies an ASCII text string (aka log line)
+# protobuf specifies a binary encoded protobuf
+# msgpack a nice to have evolution ...
+#
+routes:
+  uart: #FROM
+    #TO
+      ws:
+        plain: pass # simple pass through, no conversion
+        protobuf: to_json # built-in standard conversion between protobuf and json
+      mqtt: block
+
+  ws: #FROM
+    #TO
+    uart:
+      protobuf: pass # simple pass trough, no protocol conversion on payload
+      json: custom_transform_to_protobuf # a custom conversion function defined by the user
+    mqtt: block
+
+  mqtt: #FROM
+    #TO
+    ws: block
+    uart: block
+
+    

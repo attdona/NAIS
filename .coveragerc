@@ -1,0 +1,4 @@
+[run]
+omit = 
+    pynais/scripts/build_proto.py
+    pynais/iottest.py

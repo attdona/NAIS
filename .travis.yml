@@ -1,0 +1,29 @@
+language: python
+
+python: 
+  - "3.6.2"
+
+env:
+  - PATH=$PATH:$HOME/protoc3/bin
+
+before_install:
+  - sudo add-apt-repository ppa:team-gcc-arm-embedded/ppa -y
+  - sudo apt-get update -q
+  - sudo apt-get install gcc-arm-none-eabi
+  - sudo apt-get install ser2net
+
+install:
+  - ./install-protobuf.sh
+  - arm-none-eabi-gcc -v
+  - "pip install ."
+  - "pip install pytest-asyncio"
+  - "python setup.py build_proto"
+  - cd burba
+  - git clone https://github.com/RIOT-OS/RIOT.git
+  - rm RIOT/sys/include/xtimer/tick_conversion.h
+  - cd apps/hello-world
+  - make
+  - cd ../../..
+
+
+script: "pytest tests/test_junction.py"

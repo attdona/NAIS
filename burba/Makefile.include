@@ -1,0 +1,56 @@
+
+BURBA := $(abspath $(BURBA))
+
+RIOTCPU = $(BURBA)/cpu
+RIOTBOARD = $(BURBA)/boards
+
+#protobuf setup
+
+PROTOBUF_SPEC_DIR ?= $(BURBA)/../pynais/protobuf/messages.proto
+
+PROTOBUF_C_DIR ?= $(BURBA)/sys/protobuf-c
+
+export PROTOC_CMD = $(PROTOBUF_C_DIR)/protobuf.sh
+export PROTOC_ARGS = $(PROTOBUF_C_DIR) $(PROTOBUF_SPEC_DIR)
+
+
+export BOCIA_PYTHON ?= ../../../bocia-python/bocia
+
+# ota local directory
+BOCIAS_DIR ?= $(BOCIA_PYTHON)/samples/tmp
+
+DIRS += $(BURBA)/sys
+
+ifeq ($(BOARD), native)
+USEMODULE += sbapi_native
+endif
+ifeq ($(BOARD), cc3200-launchxl)
+USEMODULE += sbapi_cc3200 paho bocia protobuf-c
+INCLUDES += -I$(BURBA)/sys/protobuf-c -I$(BURBA)/sys/paho
+
+endif
+
+
+INCLUDES += -I$(BURBA)/sys -I$(BURBA)/sys/include -I$(BURBA)/drivers/include
+
+
+
+otadeploy: all
+	@echo "copying into ota local dir"
+	cp $(BINDIR)/$(APPLICATION).bin $(BOCIAS_DIR)
+
+protobuf:
+	@echo "building protobuf interfaces"
+	$(AD)command -v $(PROTOC_CMD) >/dev/null 2>&1 || \
+		{ $(COLOR_ECHO) \
+		'${COLOR_RED} protobuf program $(PROTOC_CMD) not found. Aborting.${COLOR_RESET}'; \
+		exit 1; }
+	$(PROTOC_CMD) $(PROTOC_ARGS)
+	
+build-test: export PYTHONPATH=$(BURBA)/lib
+build-test: flash
+	$(PYTHON) -u $(BURBA)/tools/unity_test.py $(PORT)
+
+full-build: protobuf all
+
+include $(RIOTBASE)/Makefile.include

@@ -1,0 +1,5 @@
+click==6.7
+protobuf==3.3.0
+websockets==3.3
+pyserial==3.4
+hbmqtt==0.9
