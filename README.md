@@ -1,7 +1,7 @@
 # NAIS
 
 [![Build Status](https://travis-ci.org/attdona/NAIS.svg?branch=master)](https://travis-ci.org/attdona/NAIS)
-[![Github All Releases](https://img.shields.io/github/downloads/attdona/NAIS/total.svg)]()
+[![Github All Releases](https://img.shields.io/github/downloads/attdona/NAIS/latest/total.svg)]()
 
 NAIS project started from an attempt to build a tool for multiplexing the
 serial port and ended as a micro-router monster.
