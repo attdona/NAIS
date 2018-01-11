@@ -369,7 +369,7 @@ void xtimer_init(void) {
 
 }
 
-int inline _xtimer_set_absolute(xtimer_t *timer, uint32_t ticks_offset)
+inline int _xtimer_set_absolute(xtimer_t *timer, uint32_t ticks_offset)
 {
     // internal units are clock ticks
     timer->target = ticks_offset - XTIMER_OVERHEAD;
@@ -393,7 +393,7 @@ int _xtimer_set_absolute64(xtimer_t *timer, uint64_t ticks_offset)
 }
 
 
-void inline _xtimer_set64(xtimer_t *timer, uint32_t offset,
+inline void _xtimer_set64(xtimer_t *timer, uint32_t offset,
         uint32_t long_offset) {
     uint32_t now = _xtimer_now();
 

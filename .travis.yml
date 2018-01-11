@@ -1,3 +1,5 @@
+dist: trusty
+
 language: python
 
 python: 
@@ -21,6 +23,7 @@ install:
   - cd burba
   - git clone https://github.com/RIOT-OS/RIOT.git
   - rm RIOT/sys/include/xtimer/tick_conversion.h
+  - ln -s ../RIOT/cpu/cortexm_common cpu/cortexm_common
   - cd apps/hello-world
   - make
   - cd ../../..

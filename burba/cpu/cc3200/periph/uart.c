@@ -200,11 +200,11 @@ int uart_init_blocking(uart_t uart, uint32_t baudrate) {
     return 0;
 }
 
-void uart_tx_begin(uart_t uart) {
+void uart_tx_begin(uart_t uart __attribute__((unused))) {
 
 }
 
-void uart_tx_end(uart_t uart) {
+void uart_tx_end(uart_t uart __attribute__((unused))) {
 
 }
 
@@ -272,7 +272,7 @@ int uart_read_blocking(uart_t uart, char *data) {
  **/
 int uart_read_line(uart_t uart, char *pcBuffer, unsigned int uiBufLen) {
     char cChar;
-    int iLen = 0;
+    unsigned int iLen = 0;
     unsigned long CONSOLE;
 
     switch (uart) {
@@ -351,17 +351,17 @@ int uart_read_line(uart_t uart, char *pcBuffer, unsigned int uiBufLen) {
     return iLen;
 }
 
-int uart_write_blocking(uart_t uart, char data) {
+int uart_write_blocking(uart_t uart __attribute__((unused)), char data) {
     MAP_UARTCharPut(UARTA0_BASE, data);
 
     return 1;
 }
 
-void uart_poweron(uart_t uart) {
+void uart_poweron(uart_t uart __attribute__((unused))) {
 
 }
 
-void uart_poweroff(uart_t uart) {
+void uart_poweroff(uart_t uart __attribute__((unused))) {
 
 }
 

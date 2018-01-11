@@ -300,7 +300,8 @@ void GPIOA3IntHandler(void) {
 
 int gpio_init_int(gpio_t dev, gpio_mode_t mode, gpio_flank_t flank,
 		gpio_cb_t cb, void *arg) {
-	uint32_t cc3200Mode, res, i;
+	uint32_t cc3200Mode, i;
+	int res;
 
 	uint8_t bit = digitalPinToBitMask(dev);
 	uint8_t port = digitalPinToPort(dev);

@@ -3,7 +3,8 @@ APPLICATION = unity
 BOARD ?= cc3200-launchxl
 BURBA ?= $(CURDIR)/../..
 RIOTBASE ?= $(BURBA)/RIOT
-UNITY_ROOT ?= $(BURBA)/../../cmock/vendor/unity
+
+UNITY_ROOT ?= /opt/Unity-master
 
 QUIET ?= 1
 

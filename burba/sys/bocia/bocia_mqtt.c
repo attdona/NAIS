@@ -120,7 +120,7 @@ void mqtt_transmitter_handler(bocia_channel_t *rd, proto_msg_t type,
     }
     DEBUG("(%d/%d)\n", payloadlen, len);
 #endif
-    sl_Send(mqtt_handler->fd, buf, len, 0);
+    sl_Send(rd->fd, buf, len, 0);
 }
 
 /**

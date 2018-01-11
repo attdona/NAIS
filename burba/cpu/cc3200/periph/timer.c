@@ -20,15 +20,15 @@
 
 #include <stdlib.h>
 
-#include <thread.h>
 #include "panic.h"
 #include <sys/types.h>
+#include <thread.h>
 
-#include "periph_conf.h"
 #include "periph/timer.h"
+#include "periph_conf.h"
 
-#include "driverlib/timer.h"
 #include "driverlib/prcm.h"
+#include "driverlib/timer.h"
 
 #include <inc/hw_memmap.h>
 #include <inc/hw_timer.h>
@@ -37,21 +37,20 @@
 #define MAX_TIMERS TIMER_UNDEFINED
 
 typedef struct {
-    void (*cb)(void*, int);
+    void (*cb)(void *, int);
 } timer_conf_t;
 
 static timer_conf_t config[MAX_TIMERS];
 
 void irq_timer0_handler(void) {
-    if(HWREG(TIMERA0_BASE + TIMER_O_MIS) & TIMER_MIS_TATOMIS) {
+    if (HWREG(TIMERA0_BASE + TIMER_O_MIS) & TIMER_MIS_TATOMIS) {
         HWREG(TIMERA0_BASE + TIMER_O_ICR) = TIMER_TIMA_TIMEOUT;
         config[TIMER_0].cb(0, 1); // counter limit reached
 
-    }
-    else {
+    } else {
         timer_clear(TIMER_0, 0);
         config[TIMER_0].cb(0, 0); // timer has one hw channel
-        if(sched_context_switch_request) {
+        if (sched_context_switch_request) {
             thread_yield();
         }
     }
@@ -60,7 +59,7 @@ void irq_timer0_handler(void) {
 void irq_timer1_handler(void) {
     timer_clear(TIMER_1, 0);
     config[TIMER_1].cb(0, 0); // timer has one hw channel
-    if(sched_context_switch_request) {
+    if (sched_context_switch_request) {
         thread_yield();
     }
 }
@@ -68,7 +67,7 @@ void irq_timer1_handler(void) {
 void irq_timer2_handler(void) {
     timer_clear(TIMER_2, 0);
     config[TIMER_2].cb(0, 0); // timer has one hw channel
-    if(sched_context_switch_request) {
+    if (sched_context_switch_request) {
         thread_yield();
     }
 }
@@ -76,14 +75,15 @@ void irq_timer2_handler(void) {
 void irq_timer3_handler(void) {
     timer_clear(TIMER_3, 0);
     config[TIMER_3].cb(0, 0); // timer has one hw channel
-    if(sched_context_switch_request) {
+    if (sched_context_switch_request) {
         thread_yield();
     }
 }
 
-int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg) {
+int timer_init(tim_t dev, unsigned long freq __attribute__((unused)),
+               timer_cb_t cb, void *arg __attribute__((unused))) {
 
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             //
             // Enable and Reset the timer block
@@ -181,8 +181,9 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg) {
     return 0;
 }
 
-int set_absolute(tim_t dev, int channel, unsigned long long value) {
-    switch(dev) {
+int set_absolute(tim_t dev, int channel __attribute__((unused)),
+                 unsigned long long value) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerMatchSet(TIMERA0_BASE, TIMER_A, value);
             // enable the match timer
@@ -208,24 +209,23 @@ int set_absolute(tim_t dev, int channel, unsigned long long value) {
     }
 
     return 0;
-
 }
 
 int timer_set(tim_t dev, int channel, unsigned int timeout) {
 
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             return set_absolute(dev, channel,
-            HWREG(TIMERA0_BASE + TIMER_O_TAR) + timeout);
+                                HWREG(TIMERA0_BASE + TIMER_O_TAR) + timeout);
         case TIMER_1:
             return set_absolute(dev, channel,
-            HWREG(TIMERA1_BASE + TIMER_O_TAR) + timeout);
+                                HWREG(TIMERA1_BASE + TIMER_O_TAR) + timeout);
         case TIMER_2:
             return set_absolute(dev, channel,
-            HWREG(TIMERA2_BASE + TIMER_O_TAR) + timeout);
+                                HWREG(TIMERA2_BASE + TIMER_O_TAR) + timeout);
         case TIMER_3:
             return set_absolute(dev, channel,
-            HWREG(TIMERA3_BASE + TIMER_O_TAR) + timeout);
+                                HWREG(TIMERA3_BASE + TIMER_O_TAR) + timeout);
         default:
             break;
     }
@@ -237,8 +237,8 @@ int timer_set_absolute(tim_t dev, int channel, unsigned int value) {
     return set_absolute(dev, channel, value);
 }
 
-int timer_clear(tim_t dev, int channel) {
-    switch(dev) {
+int timer_clear(tim_t dev, int channel __attribute__((unused))) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerIntClear(TIMERA0_BASE, TIMER_TIMA_MATCH);
             // disable the match timer
@@ -266,7 +266,7 @@ int timer_clear(tim_t dev, int channel) {
 }
 
 unsigned int timer_read(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             return MAP_TimerValueGet(TIMERA0_BASE, TIMER_A);
             break;
@@ -285,7 +285,7 @@ unsigned int timer_read(tim_t dev) {
 }
 
 void timer_start(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerEnable(TIMERA0_BASE, TIMER_A);
             break;
@@ -304,7 +304,7 @@ void timer_start(tim_t dev) {
 }
 
 void timer_stop(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerDisable(TIMERA0_BASE, TIMER_A);
             break;
@@ -323,7 +323,7 @@ void timer_stop(tim_t dev) {
 }
 
 void timer_irq_enable(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerIntEnable(TIMERA0_BASE, TIMER_TIMA_MATCH);
             break;
@@ -342,7 +342,7 @@ void timer_irq_enable(tim_t dev) {
 }
 
 void timer_irq_disable(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             MAP_TimerIntDisable(TIMERA0_BASE, TIMER_TIMA_MATCH);
             break;
@@ -361,7 +361,7 @@ void timer_irq_disable(tim_t dev) {
 }
 
 void timer_reset(tim_t dev) {
-    switch(dev) {
+    switch (dev) {
         case TIMER_0:
             TimerValueSet(TIMERA0_BASE, TIMER_A, 0);
             break;

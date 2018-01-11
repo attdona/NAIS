@@ -623,8 +623,10 @@ int spi_Write(Fd_t fd, unsigned char *pBuff, int len)
     int write_size = 0;
     unsigned int pBuffAddr = (unsigned int)pBuff;
 
-    if(fd!=1 || g_SpiFd!=1)
+    if(fd!=1 || g_SpiFd!=1) {
         return -1;
+    }
+        
 
 	if(len>DMA_BUFF_SIZE_MIN && g_ucDMAEnabled && ((pBuffAddr % 4) == 0))
 	{

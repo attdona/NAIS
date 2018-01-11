@@ -81,7 +81,7 @@ void bocia_close_soon(bocia_channel_t* channel) {
 
 }
 
-void *bocia_loop_run(void* arg) {
+void *bocia_loop_run(void* arg __attribute__ ((unused))) {
     int16_t rc;
     int16_t nfds = 0;
     SlFdSet_t readfs;

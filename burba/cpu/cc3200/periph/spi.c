@@ -18,21 +18,19 @@
  * @}
  */
 
+#include "periph/spi.h"
 #include "cpu.h"
 #include "mutex.h"
-#include "periph/spi.h"
 #include "periph_conf.h"
 
 /* guard this file in case no SPI device is defined */
 #if SPI_NUMOF
 
-static unsigned long bitrate[] = {
-  [SPI_CLK_100KHZ] = 100000,
-  [SPI_CLK_400KHZ] = 400000,
-  [SPI_CLK_1MHZ] = 1000000,
-  [SPI_CLK_5MHZ] = 5000000,
-  [SPI_CLK_10MHZ] = 10000000
-};
+static unsigned long bitrate[] = {[SPI_CLK_100KHZ] = 100000,
+                                  [SPI_CLK_400KHZ] = 400000,
+                                  [SPI_CLK_1MHZ] = 1000000,
+                                  [SPI_CLK_5MHZ] = 5000000,
+                                  [SPI_CLK_10MHZ] = 10000000};
 
 #if 0
 /**
@@ -50,9 +48,8 @@ static mutex_t locks[] =  {
 
 static mutex_t lock = MUTEX_INIT;
 
-void spi_init(spi_t bus)
-{
-	// cc3200 has only one SPI for external use
+void spi_init(spi_t bus) {
+    // cc3200 has only one SPI for external use
     assert(bus < SPI_NUMOF);
 
     MAP_PRCMPeripheralClkEnable(PRCM_GSPI, PRCM_RUN_MODE_CLK);
@@ -75,7 +72,7 @@ void spi_init(spi_t bus)
     //
     // Configure PIN_08 for SPI0 GSPI_CS
     //
-    //MAP_PinTypeSPI(digital_pin_to_pin_num[SPI_0_PIN_CS], PIN_MODE_7);
+    // MAP_PinTypeSPI(digital_pin_to_pin_num[SPI_0_PIN_CS], PIN_MODE_7);
 
     //
     // Reset SPI
@@ -88,13 +85,10 @@ void spi_init(spi_t bus)
     // see:
     //  e2e.ti.com/support/wireless_connectivity/f/968/p/359727/1265934#1265934
     //
-    MAP_SPIConfigSetExpClk(GSPI_BASE,MAP_PRCMPeripheralClockGet(PRCM_GSPI),
-            bitrate[SPI_0_SPEED], SPI_MODE_MASTER, SPI_0_MODE,
-                     (SPI_HW_CTRL_CS |
-                     SPI_4PIN_MODE |
-                     SPI_TURBO_OFF |
-                     SPI_CS_ACTIVELOW |
-                     SPI_WL_8));
+    MAP_SPIConfigSetExpClk(GSPI_BASE, MAP_PRCMPeripheralClockGet(PRCM_GSPI),
+                           bitrate[SPI_0_SPEED], SPI_MODE_MASTER, SPI_0_MODE,
+                           (SPI_HW_CTRL_CS | SPI_4PIN_MODE | SPI_TURBO_OFF |
+                            SPI_CS_ACTIVELOW | SPI_WL_8));
 
     //
     // Enable SPI for communication
@@ -102,12 +96,9 @@ void spi_init(spi_t bus)
     MAP_SPIEnable(GSPI_BASE);
 
     /* configure SPI mode */
-
-
 }
 
-int spi_conf_pins(spi_t dev)
-{
+int spi_conf_pins(spi_t dev) {
     if (dev >= SPI_NUMOF) {
         return -1;
     }
@@ -120,67 +111,64 @@ int spi_conf_pins(spi_t dev)
     return 0;
 }
 
-
-int spi_acquire(spi_t bus, spi_cs_t cs, spi_mode_t mode, spi_clk_t clk)
-{
+int spi_acquire(spi_t bus, spi_cs_t cs __attribute__((unused)),
+                spi_mode_t mode __attribute__((unused)),
+                spi_clk_t clk __attribute__((unused))) {
     assert(bus < SPI_NUMOF);
     mutex_lock(&lock);
     return SPI_OK;
 }
 
-void spi_release(spi_t bus)
-{
+void spi_release(spi_t bus) {
     assert(bus < SPI_NUMOF);
     mutex_unlock(&lock);
 }
 
-uint8_t spi_transfer_byte(spi_t bus, spi_cs_t cs, bool cont, uint8_t out)
-{
+uint8_t spi_transfer_byte(spi_t bus, spi_cs_t cs,
+                          bool cont __attribute__((unused)), uint8_t out) {
     uint8_t in;
     spi_transfer_bytes(bus, cs, false, &out, &in, 1);
     return in;
 }
 
-void spi_transfer_bytes(spi_t bus, spi_cs_t cs, bool cont,
-        const void *out, void *in, size_t len)
-{
+void spi_transfer_bytes(spi_t bus, spi_cs_t cs __attribute__((unused)),
+                        bool cont __attribute__((unused)), const void *out,
+                        void *in, size_t len) {
     assert(bus < SPI_NUMOF);
 
-    MAP_SPITransfer(GSPI_BASE, (unsigned char*) out, (unsigned char*) in, len,
-            0);
-
+    MAP_SPITransfer(GSPI_BASE, (unsigned char *)out, (unsigned char *)in, len,
+                    0);
 }
 
-uint8_t spi_transfer_reg(spi_t bus, spi_cs_t cs, uint8_t reg, uint8_t out)
-{
+uint8_t spi_transfer_reg(spi_t bus, spi_cs_t cs __attribute__((unused)),
+                         uint8_t reg, uint8_t out) {
     uint8_t in;
     assert(bus < SPI_NUMOF);
 
     MAP_SPITransfer(GSPI_BASE, &reg, 0, 1, 0);
 
-    if(MAP_SPITransfer(GSPI_BASE, (unsigned char*) &out, (unsigned char*) &in,
-            1, 0)) {
+    if (MAP_SPITransfer(GSPI_BASE, (unsigned char *)&out, (unsigned char *)&in,
+                        1, 0)) {
         assert(0);
     }
     return in; // success transfer
 }
 
-void spi_transfer_regs(spi_t bus, spi_cs_t cs, uint8_t reg,
-        const void *out, void *in, size_t len)
-{
+void spi_transfer_regs(spi_t bus, spi_cs_t cs __attribute__((unused)),
+                       uint8_t reg, const void *out,
+                       void *in, size_t len) {
     assert(bus < SPI_NUMOF);
 
     MAP_SPITransfer(GSPI_BASE, &reg, 0, 1, 0);
-    if(MAP_SPITransfer(GSPI_BASE, (unsigned char*) out, (unsigned char*) in,
-            len, 0)) {
+    if (MAP_SPITransfer(GSPI_BASE, (unsigned char *)out, (unsigned char *)in,
+                        len, 0)) {
         assert(0);
     }
 }
 
-void spi_transmission_begin(spi_t dev, char reset_val)
-{
+void spi_transmission_begin(spi_t dev __attribute__((unused)),
+                            char reset_val __attribute__((unused))) {
     /* spi slave is not implemented */
 }
-
 
 #endif /* SPI_NUMOF */

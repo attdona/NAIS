@@ -41,7 +41,7 @@ enum {
 
 
 
-void protobuf_to_uart(bocia_channel_t * rd, proto_msg_t type, void* obj) {
+void protobuf_to_uart(bocia_channel_t * rd __attribute__ ((unused)), proto_msg_t type, void* obj) {
     int blen;
     int hlen;
 

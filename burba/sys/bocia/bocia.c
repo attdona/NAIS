@@ -44,7 +44,7 @@ static Config *config = 0;
 int8_t bocia_input_handler(bocia_channel_t *rd, proto_msg_t command_id,
                            void *obj) {
 
-    proto_msg_t ack_type = {ACK_TYPE, 1};
+    proto_msg_t ack_type = {ACK_TYPE, 1, 0};
     ack_type.dline = command_id.dline;
 
     Ack ack = ACK__INIT;
@@ -236,7 +236,7 @@ void bocia_command(bocia_channel_t *rd, Command *cmd) {
             delayed_reboot(rd);
             break;
         case GET_CONFIG_CMD: {
-            proto_msg_t type = {CONFIG_TYPE, 0};
+            proto_msg_t type = {CONFIG_TYPE, 0, 0};
 
             if (!config) {
                 config = bocia_get_config();

@@ -85,7 +85,7 @@ typedef struct bocia_channel_t {
 
     int8_t close_pending; ///< a close request is pending
 
-    int8_t debug : 1; ///< channel set in debug mode (EXPERIMENTAL FEATURE)
+    int8_t debug; ///< channel set in debug mode (EXPERIMENTAL FEATURE)
 
 } bocia_channel_t;
 
